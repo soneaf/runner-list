@@ -1,0 +1,11 @@
+{
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/api/requests/route": "/api/requests",
+  "/api/settings/route": "/api/settings",
+  "/dashboard/page": "/dashboard",
+  "/favicon.ico/route": "/favicon.ico",
+  "/page": "/",
+  "/runner/[name]/page": "/runner/[name]",
+  "/settings/page": "/settings"
+}

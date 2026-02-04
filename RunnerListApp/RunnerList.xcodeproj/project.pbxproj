@@ -1,0 +1,782 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 60;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		15E8486B2F202C480053055F /* RunnerListCore in Frameworks */ = {isa = PBXBuildFile; productRef = 15E8486A2F202C480053055F /* RunnerListCore */; };
+		15E8486F2F202E970053055F /* LocalRequestStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15E8486D2F202E970053055F /* LocalRequestStore.swift */; };
+		IOS001 /* RunnerListiOSApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = IOSF001 /* RunnerListiOSApp.swift */; };
+		IOS007 /* SubmitRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = IOSF007 /* SubmitRequestView.swift */; };
+		IOS009 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = IOSF009 /* Assets.xcassets */; };
+		MAC001 /* RunnerListMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = MACF001 /* RunnerListMacApp.swift */; };
+		MAC002 /* MainWindowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = MACF002 /* MainWindowView.swift */; };
+		MAC003 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = MACF003 /* DashboardView.swift */; };
+		MAC004 /* NewRequestView.swift in Sources */ = {isa = PBXBuildFile; fileRef = MACF004 /* NewRequestView.swift */; };
+		MAC005 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = MACF005 /* Assets.xcassets */; };
+		SC001I /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC001 /* Request.swift */; };
+		SC001M /* Request.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC001 /* Request.swift */; };
+		SC002I /* RequestItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC002 /* RequestItem.swift */; };
+		SC002M /* RequestItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC002 /* RequestItem.swift */; };
+		SC003I /* Runner.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC003 /* Runner.swift */; };
+		SC003M /* Runner.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC003 /* Runner.swift */; };
+		SC004I /* Department.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC004 /* Department.swift */; };
+		SC004M /* Department.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC004 /* Department.swift */; };
+		SC005I /* TourSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC005 /* TourSchedule.swift */; };
+		SC005M /* TourSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC005 /* TourSchedule.swift */; };
+		SC006I /* CloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC006 /* CloudKitService.swift */; };
+		SC006M /* CloudKitService.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC006 /* CloudKitService.swift */; };
+		SC007I /* CloudKitSyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC007 /* CloudKitSyncEngine.swift */; };
+		SC007M /* CloudKitSyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC007 /* CloudKitSyncEngine.swift */; };
+		SC008I /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC008 /* DashboardViewModel.swift */; };
+		SC008M /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC008 /* DashboardViewModel.swift */; };
+		SC009I /* RunnerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC009 /* RunnerViewModel.swift */; };
+		SC009M /* RunnerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC009 /* RunnerViewModel.swift */; };
+		SC010I /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC010 /* SettingsViewModel.swift */; };
+		SC010M /* SettingsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = SC010 /* SettingsViewModel.swift */; };
+		SU001I /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = SU001 /* AppColors.swift */; };
+		SU001M /* AppColors.swift in Sources */ = {isa = PBXBuildFile; fileRef = SU001 /* AppColors.swift */; };
+		SU002I /* StatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = SU002 /* StatusBadge.swift */; };
+		SU002M /* StatusBadge.swift in Sources */ = {isa = PBXBuildFile; fileRef = SU002 /* StatusBadge.swift */; };
+		SU003I /* RequestCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = SU003 /* RequestCard.swift */; };
+		SU003M /* RequestCard.swift in Sources */ = {isa = PBXBuildFile; fileRef = SU003 /* RequestCard.swift */; };
+		SU004I /* ItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = SU004 /* ItemRow.swift */; };
+		SU004M /* ItemRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = SU004 /* ItemRow.swift */; };
+		SU005I /* ASAPIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = SU005 /* ASAPIndicator.swift */; };
+		SU005M /* ASAPIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = SU005 /* ASAPIndicator.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		15E8486D2F202E970053055F /* LocalRequestStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocalRequestStore.swift; sourceTree = "<group>"; };
+		IOSF001 /* RunnerListiOSApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerListiOSApp.swift; sourceTree = "<group>"; };
+		IOSF007 /* SubmitRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubmitRequestView.swift; sourceTree = "<group>"; };
+		IOSF009 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		IOSF010 /* RunnerListiOS.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RunnerListiOS.entitlements; sourceTree = "<group>"; };
+		MACF001 /* RunnerListMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerListMacApp.swift; sourceTree = "<group>"; };
+		MACF002 /* MainWindowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainWindowView.swift; sourceTree = "<group>"; };
+		MACF003 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		MACF004 /* NewRequestView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NewRequestView.swift; sourceTree = "<group>"; };
+		MACF005 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		MACF006 /* RunnerListMac.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RunnerListMac.entitlements; sourceTree = "<group>"; };
+		PROD001 /* RunnerListMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RunnerListMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		PROD002 /* RunnerListiOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RunnerListiOS.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		SC001 /* Request.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Request.swift; sourceTree = "<group>"; };
+		SC002 /* RequestItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestItem.swift; sourceTree = "<group>"; };
+		SC003 /* Runner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Runner.swift; sourceTree = "<group>"; };
+		SC004 /* Department.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Department.swift; sourceTree = "<group>"; };
+		SC005 /* TourSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TourSchedule.swift; sourceTree = "<group>"; };
+		SC006 /* CloudKitService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitService.swift; sourceTree = "<group>"; };
+		SC007 /* CloudKitSyncEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitSyncEngine.swift; sourceTree = "<group>"; };
+		SC008 /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
+		SC009 /* RunnerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerViewModel.swift; sourceTree = "<group>"; };
+		SC010 /* SettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsViewModel.swift; sourceTree = "<group>"; };
+		SU001 /* AppColors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppColors.swift; sourceTree = "<group>"; };
+		SU002 /* StatusBadge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusBadge.swift; sourceTree = "<group>"; };
+		SU003 /* RequestCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestCard.swift; sourceTree = "<group>"; };
+		SU004 /* ItemRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemRow.swift; sourceTree = "<group>"; };
+		SU005 /* ASAPIndicator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ASAPIndicator.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		FWIOS /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				15E8486B2F202C480053055F /* RunnerListCore in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FWMAC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		15E848692F202C480053055F /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		15E8486E2F202E970053055F /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				15E8486D2F202E970053055F /* LocalRequestStore.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		IOSAPPGRP /* App */ = {
+			isa = PBXGroup;
+			children = (
+				IOSF001 /* RunnerListiOSApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		IOSGRP /* iOS */ = {
+			isa = PBXGroup;
+			children = (
+				IOSSUBGRP /* RunnerListiOS */,
+			);
+			path = iOS;
+			sourceTree = "<group>";
+		};
+		IOSRESGRP /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				IOSF009 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		IOSSUBGRP /* RunnerListiOS */ = {
+			isa = PBXGroup;
+			children = (
+				15E8486E2F202E970053055F /* Services */,
+				IOSAPPGRP /* App */,
+				IOSVIEWSGRP /* Views */,
+				IOSRESGRP /* Resources */,
+				IOSF010 /* RunnerListiOS.entitlements */,
+			);
+			path = RunnerListiOS;
+			sourceTree = "<group>";
+		};
+		IOSSUBMITGRP /* RequestSubmission */ = {
+			isa = PBXGroup;
+			children = (
+				IOSF007 /* SubmitRequestView.swift */,
+			);
+			path = RequestSubmission;
+			sourceTree = "<group>";
+		};
+		IOSVIEWSGRP /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				IOSSUBMITGRP /* RequestSubmission */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		MACAPPGRP /* App */ = {
+			isa = PBXGroup;
+			children = (
+				MACF001 /* RunnerListMacApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		MACDBGRP /* Dashboard */ = {
+			isa = PBXGroup;
+			children = (
+				MACF003 /* DashboardView.swift */,
+			);
+			path = Dashboard;
+			sourceTree = "<group>";
+		};
+		MACGRP /* macOS */ = {
+			isa = PBXGroup;
+			children = (
+				MACSUBGRP /* RunnerListMac */,
+			);
+			path = macOS;
+			sourceTree = "<group>";
+		};
+		MACMWGRP /* MainWindow */ = {
+			isa = PBXGroup;
+			children = (
+				MACF002 /* MainWindowView.swift */,
+			);
+			path = MainWindow;
+			sourceTree = "<group>";
+		};
+		MACRESGRP /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				MACF005 /* Assets.xcassets */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		MACRFGRP /* RequestForm */ = {
+			isa = PBXGroup;
+			children = (
+				MACF004 /* NewRequestView.swift */,
+			);
+			path = RequestForm;
+			sourceTree = "<group>";
+		};
+		MACSUBGRP /* RunnerListMac */ = {
+			isa = PBXGroup;
+			children = (
+				MACAPPGRP /* App */,
+				MACVIEWSGRP /* Views */,
+				MACRESGRP /* Resources */,
+				MACF006 /* RunnerListMac.entitlements */,
+			);
+			path = RunnerListMac;
+			sourceTree = "<group>";
+		};
+		MACVIEWSGRP /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				MACMWGRP /* MainWindow */,
+				MACDBGRP /* Dashboard */,
+				MACRFGRP /* RequestForm */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		PRODGRP /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				PROD001 /* RunnerListMac.app */,
+				PROD002 /* RunnerListiOS.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		ROOTGRP = {
+			isa = PBXGroup;
+			children = (
+				SHAREDGRP /* Shared/Sources */,
+				MACGRP /* macOS */,
+				IOSGRP /* iOS */,
+				15E848692F202C480053055F /* Frameworks */,
+				PRODGRP /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		SHAREDGRP /* Shared/Sources */ = {
+			isa = PBXGroup;
+			children = (
+				SHCOREGRP /* RunnerListCore */,
+				SHUIGRP /* RunnerListUI */,
+			);
+			path = Shared/Sources;
+			sourceTree = "<group>";
+		};
+		SHCKGRP /* CloudKit */ = {
+			isa = PBXGroup;
+			children = (
+				SC006 /* CloudKitService.swift */,
+				SC007 /* CloudKitSyncEngine.swift */,
+			);
+			path = CloudKit;
+			sourceTree = "<group>";
+		};
+		SHCOMPGRP /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				SU002 /* StatusBadge.swift */,
+				SU003 /* RequestCard.swift */,
+				SU004 /* ItemRow.swift */,
+				SU005 /* ASAPIndicator.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		SHCOREGRP /* RunnerListCore */ = {
+			isa = PBXGroup;
+			children = (
+				SHMODELSGRP /* Models */,
+				SHSERVGRP /* Services */,
+				SHVMGRP /* ViewModels */,
+			);
+			path = RunnerListCore;
+			sourceTree = "<group>";
+		};
+		SHMODELSGRP /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				SC001 /* Request.swift */,
+				SC002 /* RequestItem.swift */,
+				SC003 /* Runner.swift */,
+				SC004 /* Department.swift */,
+				SC005 /* TourSchedule.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		SHSERVGRP /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				SHCKGRP /* CloudKit */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		SHSTYLEGRP /* Styles */ = {
+			isa = PBXGroup;
+			children = (
+				SU001 /* AppColors.swift */,
+			);
+			path = Styles;
+			sourceTree = "<group>";
+		};
+		SHUIGRP /* RunnerListUI */ = {
+			isa = PBXGroup;
+			children = (
+				SHSTYLEGRP /* Styles */,
+				SHCOMPGRP /* Components */,
+			);
+			path = RunnerListUI;
+			sourceTree = "<group>";
+		};
+		SHVMGRP /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				SC008 /* DashboardViewModel.swift */,
+				SC009 /* RunnerViewModel.swift */,
+				SC010 /* SettingsViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		TGTIOS /* RunnerListiOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CFGIOS /* Build configuration list for PBXNativeTarget "RunnerListiOS" */;
+			buildPhases = (
+				SRCIOS /* Sources */,
+				FWIOS /* Frameworks */,
+				RESIOS /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RunnerListiOS;
+			productName = RunnerListiOS;
+			productReference = PROD002 /* RunnerListiOS.app */;
+			productType = "com.apple.product-type.application";
+		};
+		TGTMAC /* RunnerListMac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CFGMAC /* Build configuration list for PBXNativeTarget "RunnerListMac" */;
+			buildPhases = (
+				SRCMAC /* Sources */,
+				FWMAC /* Frameworks */,
+				RESMAC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = RunnerListMac;
+			productName = RunnerListMac;
+			productReference = PROD001 /* RunnerListMac.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		PROJECT /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					TGTIOS = {
+						CreatedOnToolsVersion = 15.0;
+					};
+					TGTMAC = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = CFGPROJ /* Build configuration list for PBXProject "RunnerList" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = ROOTGRP;
+			packageReferences = (
+				15E848682F202C250053055F /* XCLocalSwiftPackageReference "Shared" */,
+			);
+			productRefGroup = PRODGRP /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				TGTMAC /* RunnerListMac */,
+				TGTIOS /* RunnerListiOS */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		RESIOS /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				IOS009 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		RESMAC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				MAC005 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		SRCIOS /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				SC001I /* Request.swift in Sources */,
+				SC002I /* RequestItem.swift in Sources */,
+				SC003I /* Runner.swift in Sources */,
+				SC004I /* Department.swift in Sources */,
+				SC005I /* TourSchedule.swift in Sources */,
+				SC006I /* CloudKitService.swift in Sources */,
+				SC007I /* CloudKitSyncEngine.swift in Sources */,
+				SC008I /* DashboardViewModel.swift in Sources */,
+				SC009I /* RunnerViewModel.swift in Sources */,
+				SC010I /* SettingsViewModel.swift in Sources */,
+				SU001I /* AppColors.swift in Sources */,
+				SU002I /* StatusBadge.swift in Sources */,
+				SU003I /* RequestCard.swift in Sources */,
+				SU004I /* ItemRow.swift in Sources */,
+				SU005I /* ASAPIndicator.swift in Sources */,
+				15E8486F2F202E970053055F /* LocalRequestStore.swift in Sources */,
+				IOS001 /* RunnerListiOSApp.swift in Sources */,
+				IOS007 /* SubmitRequestView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		SRCMAC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				SC001M /* Request.swift in Sources */,
+				SC002M /* RequestItem.swift in Sources */,
+				SC003M /* Runner.swift in Sources */,
+				SC004M /* Department.swift in Sources */,
+				SC005M /* TourSchedule.swift in Sources */,
+				SC006M /* CloudKitService.swift in Sources */,
+				SC007M /* CloudKitSyncEngine.swift in Sources */,
+				SC008M /* DashboardViewModel.swift in Sources */,
+				SC009M /* RunnerViewModel.swift in Sources */,
+				SC010M /* SettingsViewModel.swift in Sources */,
+				SU001M /* AppColors.swift in Sources */,
+				SU002M /* StatusBadge.swift in Sources */,
+				SU003M /* RequestCard.swift in Sources */,
+				SU004M /* ItemRow.swift in Sources */,
+				SU005M /* ASAPIndicator.swift in Sources */,
+				MAC001 /* RunnerListMacApp.swift in Sources */,
+				MAC002 /* MainWindowView.swift in Sources */,
+				MAC003 /* DashboardView.swift in Sources */,
+				MAC004 /* NewRequestView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		DBGIOS /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = iOS/RunnerListiOS/RunnerListiOS.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9ZFJP5WR33;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Runner List";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.runnerlist.ios;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		DBGMAC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = macOS/RunnerListMac/RunnerListMac.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9ZFJP5WR33;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Runner List";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.runnerlist.mac;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		DBGPROJ /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		RELIOS /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = iOS/RunnerListiOS/RunnerListiOS.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9ZFJP5WR33;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Runner List";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.runnerlist.ios;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		RELMAC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = macOS/RunnerListMac/RunnerListMac.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9ZFJP5WR33;
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = "Runner List";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.runnerlist.mac;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		RELPROJ /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CFGIOS /* Build configuration list for PBXNativeTarget "RunnerListiOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DBGIOS /* Debug */,
+				RELIOS /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CFGMAC /* Build configuration list for PBXNativeTarget "RunnerListMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DBGMAC /* Debug */,
+				RELMAC /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CFGPROJ /* Build configuration list for PBXProject "RunnerList" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DBGPROJ /* Debug */,
+				RELPROJ /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		15E848682F202C250053055F /* XCLocalSwiftPackageReference "Shared" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Shared;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		15E8486A2F202C480053055F /* RunnerListCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 15E848682F202C250053055F /* XCLocalSwiftPackageReference "Shared" */;
+			productName = RunnerListCore;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = PROJECT /* Project object */;
+}
