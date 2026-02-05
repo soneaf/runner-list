@@ -98,7 +98,6 @@ const styles = StyleSheet.create({
         height: 300,
         objectFit: 'contain',
         borderRadius: 15,
-        marginLeft: 40,
     }
 });
 
@@ -172,16 +171,26 @@ export const RunnerPdf = ({ runnerName, items, funFact, venueName, listNumber }:
                                         )}
 
                                         <Text style={styles.itemSub}>
-                                            Req by: {item.name} {item.phone ? `(${item.phone})` : ''}
+                                            Req by: {item.name} {item.phone ? `- ${item.phone}` : ''}
                                         </Text>
                                     </View>
 
                                     {/* Right Content (Image) */}
                                     {item.image_url && (
-                                        <Image
-                                            style={styles.itemImage}
-                                            src={item.image_url.startsWith('http') ? item.image_url : window.location.origin + item.image_url}
-                                        />
+                                        <View style={{ marginLeft: 40 }}>
+                                            <Image
+                                                style={styles.itemImage}
+                                                src={(() => {
+                                                    // Handle different URL formats
+                                                    if (item.image_url.startsWith('http')) {
+                                                        return item.image_url;
+                                                    }
+                                                    // For local images, construct full URL
+                                                    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+                                                    return baseUrl + item.image_url;
+                                                })()}
+                                            />
+                                        </View>
                                     )}
                                 </View>
                             </View>

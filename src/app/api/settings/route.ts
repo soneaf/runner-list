@@ -35,7 +35,15 @@ export async function GET(req: Request) {
         const runnerSheet = doc.sheetsByTitle['Runners'];
         if (runnerSheet) {
             const runnerRows = await runnerSheet.getRows();
-            runners = runnerRows.map(row => ({ name: row.get('Name'), phone: row.get('Phone') }));
+            runners = runnerRows.map(row => ({
+                name: row.get('Name'),
+                phone: row.get('Phone'),
+                city: row.get('City') || '',
+                active: row.get('Active') !== 'FALSE', // Default to TRUE if missing or anything else
+                cash: !isNaN(parseFloat(row.get('Cash'))) ? parseFloat(row.get('Cash')) : 0, // Allow 0
+                contactType: row.get('ContactType') || 'cell', // Default to cell
+                color: row.get('Color') || null
+            }));
         }
 
         // Fetch Departments
@@ -54,32 +62,74 @@ export async function GET(req: Request) {
             departments = deptRows.map(r => r.get('Name')).filter(n => n);
         }
 
-        // Check Schedule for Today
+        // Check Schedule for Today + Fetch Full Schedule
         let todayInfo = null;
+        let schedule: any[] = [];
         const scheduleSheet = doc.sheetsByTitle['Schedule'];
         if (scheduleSheet) {
             const scheduleRows = await scheduleSheet.getRows();
-            // Fix: Format as "Fri Jan 16" to match Google Sheet text format
-            const rawDate = new Intl.DateTimeFormat('en-US', {
-                timeZone: 'America/New_York',
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric'
-            }).format(new Date());
 
-            // Remove comma -> "Fri Jan 16"
-            const todayStr = rawDate.replace(/,/g, '');
+            // Build full schedule array
+            schedule = scheduleRows.map(r => ({
+                date: r.get('Date'),
+                city: r.get('City'),
+                venue: r.get('Venue')
+            })).filter(r => r.date); // Filter out empty rows
 
-            console.log(`Looking for schedule on: ${todayStr}`);
+            // Helper to normalize any date to comparable format
+            const normalizeDate = (dateStr: string): string => {
+                if (!dateStr) return '';
+                const clean = dateStr.trim();
+
+                // 1. If already YYYY-MM-DD, return it to prevent timezone shifting
+                if (/^\d{4}-\d{2}-\d{2}$/.test(clean)) return clean;
+
+                try {
+                    let processedDate = clean;
+                    const currentYear = new Date().getFullYear();
+
+                    // Check if date already has a 4-digit year
+                    const hasYear = /\b(20\d{2}|19\d{2})\b/.test(processedDate);
+                    if (!hasYear) {
+                        // Append current year for dates like "Fri Jan 16" or "Feb 4"
+                        processedDate = `${processedDate}, ${currentYear}`;
+                    }
+
+                    const parsed = new Date(processedDate);
+                    if (isNaN(parsed.getTime())) return clean.toLowerCase();
+
+                    // Return as "2026-02-04" format using local components (works for M/D/Y)
+                    return `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, '0')}-${String(parsed.getDate()).padStart(2, '0')}`;
+                } catch {
+                    return clean.toLowerCase();
+                }
+            };
+
+            // Get today in EST timezone
+            const now = new Date();
+            const estOptions = { timeZone: 'America/New_York' };
+            const estDate = new Date(now.toLocaleString('en-US', estOptions));
+            const todayNormalized = `${estDate.getFullYear()}-${String(estDate.getMonth() + 1).padStart(2, '0')}-${String(estDate.getDate()).padStart(2, '0')}`;
+
+            console.log(`Looking for schedule on (normalized): ${todayNormalized}`);
 
             // Debug Log
             if (scheduleRows.length > 0) {
-                console.log('Dates in sheet:', scheduleRows.slice(0, 5).map(r => r.get('Date')));
+                console.log('First 5 dates in sheet:', scheduleRows.slice(0, 5).map(r => r.get('Date')));
+                console.log('First 5 normalized:', scheduleRows.slice(0, 5).map(r => normalizeDate(r.get('Date'))));
             }
 
-            const found = scheduleRows.find(r => r.get('Date') === todayStr);
+            // Find matching date
+            const found = scheduleRows.find(r => {
+                const sheetDate = normalizeDate(r.get('Date'));
+                return sheetDate === todayNormalized;
+            });
+
             if (found) {
-                todayInfo = { City: found.get('City'), Venue: found.get('Venue'), Date: todayStr };
+                todayInfo = { City: found.get('City'), Venue: found.get('Venue'), Date: found.get('Date') };
+                console.log('Found today:', todayInfo);
+            } else {
+                console.log('No match found for today');
             }
         }
 
@@ -91,7 +141,7 @@ export async function GET(req: Request) {
             funFacts = factRows.map(r => r.get('Fun Facts')).filter(f => f); // Filter out empty
         }
 
-        return NextResponse.json({ runners, departments, todayInfo, funFacts, serviceEmail: auth.email });
+        return NextResponse.json({ runners, departments, todayInfo, schedule, funFacts, serviceEmail: auth.email });
     } catch (error) {
         console.error('Settings API Error', error);
         return NextResponse.json({ error: 'Failed to fetch settings' }, { status: 500 });
@@ -105,7 +155,57 @@ export async function POST(req: Request) {
 
         if (body.type === 'runner') {
             const sheet = doc.sheetsByTitle['Runners'];
-            await sheet.addRow({ Name: body.name, Phone: body.phone });
+
+            // Ensure headers exist
+            await sheet.loadHeaderRow();
+            const headers = sheet.headerValues;
+            let newHeaders = [...headers];
+            if (!headers.includes('City')) newHeaders.push('City');
+            if (!headers.includes('Active')) newHeaders.push('Active');
+            if (!headers.includes('Cash')) newHeaders.push('Cash');
+            if (!headers.includes('ContactType')) newHeaders.push('ContactType');
+            if (!headers.includes('Color')) newHeaders.push('Color');
+            if (newHeaders.length > headers.length) await sheet.setHeaderRow(newHeaders);
+
+            await sheet.addRow({
+                Name: body.name,
+                Phone: body.phone,
+                City: body.city || '',
+                Active: 'TRUE',
+                Cash: body.cash ?? 0,
+                ContactType: body.contactType || 'cell',
+                Color: body.color || ''
+            });
+        }
+
+        if (body.type === 'toggle_runner') {
+            const sheet = doc.sheetsByTitle['Runners'];
+            const rows = await sheet.getRows();
+            const row = rows.find(r => r.get('Name') === body.name);
+            if (row) {
+                row.assign({ Active: body.active ? 'TRUE' : 'FALSE' });
+                await row.save();
+            }
+        }
+
+        // Update Runner Cash
+        if (body.type === 'update_runner_cash') {
+            const sheet = doc.sheetsByTitle['Runners'];
+            if (sheet) {
+                // Ensure Cash header exists
+                await sheet.loadHeaderRow();
+                const headers = sheet.headerValues;
+                if (!headers.includes('Cash')) {
+                    await sheet.setHeaderRow([...headers, 'Cash']);
+                }
+
+                const rows = await sheet.getRows();
+                const row = rows.find(r => r.get('Name') === body.name);
+                if (row) {
+                    row.assign({ Cash: body.cash.toString() });
+                    await row.save();
+                }
+            }
         }
 
         if (body.type === 'department') {
@@ -114,9 +214,58 @@ export async function POST(req: Request) {
             await sheet.addRow({ Name: body.name });
         }
 
+        if (body.type === 'update_runner') {
+            const sheet = doc.sheetsByTitle['Runners'];
+            const rows = await sheet.getRows();
+            const row = rows.find(r => r.get('Name') === body.originalName);
+            if (row) {
+                row.assign({
+                    Name: body.name,
+                    Phone: body.phone,
+                    City: body.city || '',
+                    Cash: body.cash ?? 0,
+                    ContactType: body.contactType || 'cell',
+                    Color: body.color || ''
+                });
+                await row.save();
+            }
+        }
+
         if (body.type === 'schedule_bulk') {
-            const sheet = doc.sheetsByTitle['Schedule'];
-            await sheet.addRows(body.rows);
+            let sheet = doc.sheetsByTitle['Schedule'];
+
+            // Create sheet if it doesn't exist
+            if (!sheet) {
+                sheet = await doc.addSheet({ title: 'Schedule', headerValues: ['Date', 'City', 'Venue'] });
+            } else {
+                // Clear existing data (keep headers)
+                const existingRows = await sheet.getRows();
+                for (const row of existingRows) {
+                    await row.delete();
+                }
+            }
+
+            // Normalize dates to YYYY-MM-DD format for consistent matching
+            const normalizedRows = body.rows.map((row: any) => {
+                const rawDate = row.Date || row.date;
+                const rawCity = row.City || row.city;
+                const rawVenue = row.Venue || row.venue;
+
+                let normalizedDate = rawDate;
+                try {
+                    const parsed = new Date(rawDate);
+                    if (!isNaN(parsed.getTime())) {
+                        // Format as YYYY-MM-DD
+                        normalizedDate = `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, '0')}-${String(parsed.getDate()).padStart(2, '0')}`;
+                    }
+                } catch {
+                    // Keep original if parsing fails
+                }
+                return { Date: normalizedDate, City: rawCity, Venue: rawVenue };
+            });
+
+            // Add new rows
+            await sheet.addRows(normalizedRows);
         }
 
         return NextResponse.json({ success: true });

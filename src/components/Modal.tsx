@@ -64,7 +64,7 @@ export default function Modal({
                             onClick={onClose}
                             className="px-4 py-2 text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg transition-colors shadow-lg shadow-indigo-900/20"
                         >
-                            Okay
+                            {confirmText === 'Confirm' ? 'Okay' : confirmText}
                         </button>
                     )}
                 </div>

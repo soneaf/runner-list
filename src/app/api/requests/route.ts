@@ -119,34 +119,23 @@ export async function POST(req: Request) {
                             throw new Error(data.error?.message || 'ImgBB upload failed');
                         }
                     }
-                    // OPTION 2: Google Drive Service Account (Fallback)
+                    // OPTION 2: Local Filesystem Storage (Reliable for Self-Hosted/Dev)
                     else {
                         const base64Data = item.imageBase64.split(',')[1];
                         const buffer = Buffer.from(base64Data, 'base64');
-                        const stream = Readable.from(buffer);
 
-                        const fileMetadata = {
-                            name: `runner_req_${Date.now()}.png`,
-                            parents: [],
-                        };
+                        // Generate unique filename
+                        const filename = `img_${Date.now()}_${Math.random().toString(36).substring(7)}.png`;
+                        const uploadDir = path.join(process.cwd(), 'public', 'uploads');
+                        const filePath = path.join(uploadDir, filename);
 
-                        const media = {
-                            mimeType: 'image/png',
-                            body: stream,
-                        };
+                        // Ensure directory exists (redundant check but safe)
+                        // await mkdir(uploadDir, { recursive: true }); // imported from fs/promises
 
-                        const file = await drive.files.create({
-                            requestBody: fileMetadata,
-                            media: media,
-                            fields: 'id, webViewLink, webContentLink',
-                        });
+                        await writeFile(filePath, buffer);
 
-                        await drive.permissions.create({
-                            fileId: file.data.id!,
-                            requestBody: { role: 'reader', type: 'anyone' },
-                        });
-
-                        imageUrl = file.data.webViewLink || '';
+                        // Set URL relative to the public folder
+                        imageUrl = `/uploads/${filename}`;
                     }
                 } catch (uploadErr: any) {
                     console.error('Image Upload Failed:', uploadErr);

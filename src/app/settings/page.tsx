@@ -4,11 +4,28 @@ import { useSearchParams } from 'next/navigation';
 import Papa from 'papaparse'; // CSV Parser
 import Modal from '../../components/Modal';
 
+const colors = ['#6366f1', '#10b981', '#f43f5e', '#f59e0b', '#06b6d4', '#a855f7', '#ec4899', '#3b82f6', '#84cc16', '#f97316'];
+
 function SettingsContent() {
     const searchParams = useSearchParams();
     const [runnerName, setRunnerName] = useState('');
     const [runnerPhone, setRunnerPhone] = useState('');
+    const [runnerCity, setRunnerCity] = useState(''); // Added City State
+    const [runnerCash, setRunnerCash] = useState('0'); // Cash float for runner
+    const [runnerContactType, setRunnerContactType] = useState('cell');
     const [runners, setRunners] = useState<any[]>([]);
+    const [editingRunnerOldName, setEditingRunnerOldName] = useState<string | null>(null);
+
+    // Color State
+    // Color State
+    const [runnerColor, setRunnerColor] = useState(colors[0]);
+
+    // Sequential Color Logic
+    useEffect(() => {
+        if (!editingRunnerOldName) {
+            setRunnerColor(colors[runners.length % colors.length]);
+        }
+    }, [runners.length, editingRunnerOldName]);
 
     // Department State
     const [departments, setDepartments] = useState<string[]>([]);
@@ -22,7 +39,7 @@ function SettingsContent() {
     const [mapping, setMapping] = useState({ date: '', city: '', venue: '' });
 
     // App Setup State
-    const [activeSettingTab, setActiveSettingTab] = useState<'Runners' | 'Departments' | 'Tour Schedule' | 'App Setup' | 'Help'>('Departments');
+    const [activeSettingTab, setActiveSettingTab] = useState<'Runners' | 'Departments' | 'Tour Schedule' | 'App Setup' | 'Help'>('Runners');
     const [sheetId, setSheetId] = useState('');
 
     useEffect(() => {
@@ -49,7 +66,7 @@ function SettingsContent() {
     });
 
     const closeModal = () => setModal(prev => ({ ...prev, isOpen: false }));
-    const showInfo = (title: string, message: string, type: 'info' | 'success' = 'info') => {
+    const showInfo = (title: string, message: string, type: 'info' | 'success' | 'danger' = 'info') => {
         setModal({ isOpen: true, title, message, type, onConfirm: undefined });
     };
     const showConfirm = (title: string, message: string, onConfirm: () => void) => {
@@ -61,8 +78,18 @@ function SettingsContent() {
         const storedSheetId = localStorage.getItem('custom_sheet_id');
         if (storedSheetId) setSheetId(storedSheetId);
 
+        // Load tour schedule from localStorage
+        const storedSchedule = localStorage.getItem('tour_schedule');
+        if (storedSchedule) {
+            try { setSchedule(JSON.parse(storedSchedule)); } catch { }
+        }
+
         fetchSettings();
     }, []);
+
+    // Schedule State
+    const [schedule, setSchedule] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     async function fetchSettings() {
         try {
@@ -74,13 +101,13 @@ function SettingsContent() {
             if (data.runners) setRunners(data.runners);
             if (data.departments) setDepartments(data.departments);
             if (data.serviceEmail) setServiceEmail(data.serviceEmail);
+            if (data.schedule) setSchedule(data.schedule);
         } catch (e) {
             console.error(e);
         }
     }
 
-    // 1. Add Single Runner
-    // 1. Add Single Runner
+    // 1. Add or Update Runner
     async function addRunner() {
         if (!runnerName || !runnerPhone) {
             return showInfo('Validation Error', 'Please enter both a Name and a Phone number.');
@@ -89,19 +116,92 @@ function SettingsContent() {
         const storedSheetId = localStorage.getItem('custom_sheet_id');
         const headers: HeadersInit = storedSheetId ? { 'x-custom-sheet-id': storedSheetId } : {};
 
-        await fetch('/api/settings', {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({ type: 'runner', name: runnerName, phone: runnerPhone }),
-        });
-        showInfo('Success', 'Runner added successfully!', 'success');
-        setRunnerName(''); setRunnerPhone('');
+        if (editingRunnerOldName) {
+            // Update Mode
+            await fetch('/api/settings', {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({
+                    type: 'update_runner',
+                    originalName: editingRunnerOldName,
+                    name: runnerName,
+                    phone: runnerPhone,
+                    city: runnerCity,
+                    cash: runnerCash !== '' ? parseFloat(runnerCash) : 0,
+                    contactType: runnerContactType,
+                    color: runnerColor
+                }),
+            });
+            showInfo('Success', 'Runner updated successfully!', 'success');
+        } else {
+            // Add Mode
+            await fetch('/api/settings', {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({
+                    type: 'runner',
+                    name: runnerName,
+                    phone: runnerPhone,
+                    city: runnerCity,
+                    cash: runnerCash !== '' ? parseFloat(runnerCash) : 0,
+                    contactType: runnerContactType,
+                    color: runnerColor
+                }),
+            });
+            showInfo('Success', 'Runner added successfully!', 'success');
+        }
+
+        cancelEditing();
         fetchSettings();
+    }
+
+    function startEditing(r: any) {
+        setRunnerName(r.name);
+        setRunnerPhone(r.phone);
+        setRunnerCity(r.city || '');
+        setRunnerCash(r.cash?.toString() || '0');
+        setRunnerContactType(r.contactType || 'cell');
+        setRunnerColor(r.color || colors[Math.floor(Math.random() * colors.length)]);
+        setEditingRunnerOldName(r.name);
+
+        // Scroll to form
+        const form = document.getElementById('runner-form');
+        if (form) form.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function cancelEditing() {
+        setRunnerName('');
+        setRunnerPhone('');
+        setRunnerCity('');
+        setRunnerCash('0');
+        setRunnerContactType('cell');
+        setEditingRunnerOldName(null);
+    }
+
+    // Toggle Runner Status
+    async function toggleRunner(name: string, active: boolean) {
+        // Optimistic UI Update
+        setRunners(prev => prev.map(r => r.name === name ? { ...r, active } : r));
+
+        const storedSheetId = localStorage.getItem('custom_sheet_id');
+        const headers: HeadersInit = storedSheetId ? { 'x-custom-sheet-id': storedSheetId } : {};
+
+        try {
+            await fetch('/api/settings', {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ type: 'toggle_runner', name, active }),
+            });
+        } catch (e) {
+            console.error('Failed to toggle runner', e);
+            fetchSettings(); // Revert on failure
+        }
     }
 
     // 2. Delete Runner
     function deleteRunner(name: string) {
         showConfirm('Delete Runner', `Are you sure you want to delete ${name}?`, async () => {
+            if (editingRunnerOldName === name) cancelEditing();
             const storedSheetId = localStorage.getItem('custom_sheet_id');
             const headers: HeadersInit = storedSheetId ? { 'x-custom-sheet-id': storedSheetId } : {};
             await fetch(`/api/settings?name=${encodeURIComponent(name)}`, { method: 'DELETE', headers });
@@ -164,37 +264,152 @@ function SettingsContent() {
         });
     };
 
-    // 5. Process Upload with Mapping
+    // 5. Process Upload with Mapping - SAVE TO LOCALSTORAGE & API
     const processUpload = async () => {
         if (!mapping.date || !mapping.city || !mapping.venue) {
             return showInfo('Missing Fields', 'Please map all fields (Date, City, Venue) to continue.');
         }
 
-        setUploadStatus('Uploading...');
+        setUploadStatus('Processing...');
 
-        // Transform Data
-        const rows = csvData.map(row => ({
-            Date: row[mapping.date],
-            City: row[mapping.city],
-            Venue: row[mapping.venue]
-        })).filter(r => r.Date && r.City); // Basic validation at row level
+        // Transform and normalize dates
+        const rows = csvData.map(row => {
+            let dateStr = row[mapping.date];
+            let normalizedDate = dateStr;
 
-        const storedSheetId = localStorage.getItem('custom_sheet_id');
-        const headers: HeadersInit = storedSheetId ? { 'x-custom-sheet-id': storedSheetId } : {};
+            // Normalize to YYYY-MM-DD format
+            try {
+                let processedDate = dateStr?.trim() || '';
+                const currentYear = new Date().getFullYear();
 
-        await fetch('/api/settings', {
-            method: 'POST',
-            headers,
-            body: JSON.stringify({ type: 'schedule_bulk', rows }),
-        });
+                // Add year if missing
+                const hasYear = /\b(20\d{2}|19\d{2})\b/.test(processedDate);
+                if (!hasYear && processedDate) {
+                    processedDate = `${processedDate}, ${currentYear}`;
+                }
 
-        setUploadStatus('Schedule Uploaded Successfully!');
+                const parsed = new Date(processedDate);
+                if (!isNaN(parsed.getTime())) {
+                    normalizedDate = `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(2, '0')}-${String(parsed.getDate()).padStart(2, '0')}`;
+                }
+            } catch { }
+
+            return {
+                date: normalizedDate,
+                city: row[mapping.city],
+                venue: row[mapping.venue]
+            };
+        }).filter(r => r.date && r.city);
+
+        // Save to localStorage
+        localStorage.setItem('tour_schedule', JSON.stringify(rows));
+        setSchedule(rows);
+
+        // Sync to Cloud
+        try {
+            setUploadStatus('Syncing to Cloud...');
+            const storedSheetId = localStorage.getItem('custom_sheet_id');
+            const headers: HeadersInit = storedSheetId ? { 'x-custom-sheet-id': storedSheetId } : {};
+            await fetch('/api/settings', {
+                method: 'POST',
+                headers,
+                body: JSON.stringify({ type: 'schedule_bulk', rows }),
+            });
+            showInfo('Import Complete', `Tour schedule with ${rows.length} dates saved and synced!`, 'success');
+        } catch (e) {
+            console.error("Sync failed", e);
+            showInfo('Sync Warning', 'Saved locally but failed to sync to cloud.', 'info');
+        }
+
+        setUploadStatus('Schedule Saved!');
         setTimeout(() => {
             setUploadStatus('');
             setCsvStep('upload');
             setMapping({ date: '', city: '', venue: '' });
-            showInfo('Import Complete', 'Tour schedule has been successfully imported.', 'success');
-        }, 1000);
+        }, 500);
+    };
+
+    // 6. Clear Schedule
+    const clearSchedule = () => {
+        showConfirm('Clear Schedule', 'Are you sure you want to remove all tour dates? This action cannot be undone.', async () => {
+            localStorage.removeItem('tour_schedule');
+            setSchedule([]);
+
+            // Clear from Cloud
+            try {
+                const storedSheetId = localStorage.getItem('custom_sheet_id');
+                const headers: HeadersInit = storedSheetId ? { 'x-custom-sheet-id': storedSheetId } : {};
+                await fetch('/api/settings', {
+                    method: 'POST',
+                    headers,
+                    body: JSON.stringify({ type: 'schedule_bulk', rows: [] }),
+                });
+            } catch (e) {
+                console.error("Failed to clear cloud schedule", e);
+            }
+
+            closeModal();
+            showInfo('Schedule Cleared', 'All tour dates have been removed.', 'success');
+        });
+    };
+
+    const handleHardReset = () => {
+        showConfirm(
+            'Factory Reset Application?',
+            'This provides a fresh start. It will wipe all data from the connected Google Sheet (Requests, Runners, Depts) AND reset your local app settings. This action cannot be undone.',
+            async () => {
+                setIsLoading(true);
+                try {
+                    const storedSheetId = localStorage.getItem('custom_sheet_id');
+                    const headers: HeadersInit = storedSheetId ? { 'x-custom-sheet-id': storedSheetId } : {};
+
+                    // Wipe Sheet
+                    await fetch('/api/reset', { method: 'POST', headers });
+
+                    // Wipe Local Storage
+                    localStorage.clear();
+
+                    showInfo('System Reset', 'Application has been factory reset. Reloading...', 'success');
+
+                    // Force reload after delay
+                    setTimeout(() => {
+                        window.location.href = '/';
+                    }, 1500);
+                } catch (error) {
+                    console.error('Reset failed', error);
+                    showInfo('Reset Failed', 'Could not clear data. Check connection.', 'danger');
+                    setIsLoading(false);
+                }
+            }
+        );
+    };
+
+    const loadDemoData = () => {
+        showConfirm(
+            'Load Demo Data',
+            'This action will add 50 mock items and 5 runners to your connected Google Sheet.\n\nIt is recommended to use this on a new or empty sheet to avoid cluttering real data. Do you want to continue?',
+            async () => {
+                setIsLoading(true);
+                try {
+                    const sheetId = localStorage.getItem('custom_sheet_id');
+                    const res = await fetch('/api/seed', {
+                        method: 'POST',
+                        headers: sheetId ? { 'x-custom-sheet-id': sheetId } : {}
+                    });
+                    const data = await res.json();
+                    if (data.success) {
+                        showInfo('Success', 'Demo data loaded! Reloading dashboard...', 'success');
+                        setTimeout(() => window.location.href = '/dashboard', 1500);
+                    } else {
+                        showInfo('Error', data.error || 'Failed to load demo data', 'danger');
+                    }
+                } catch (e) {
+                    showInfo('Error', 'Network error', 'danger');
+                } finally {
+                    setIsLoading(false);
+                }
+            }
+        );
     };
 
     const handleSaveSheetId = async () => {
@@ -300,21 +515,72 @@ function SettingsContent() {
                             <p className="text-gray-400 mb-8 max-w-2xl">Add or remove runners from the system. Runners added here will appear in the assignment dropdown on the dashboard.</p>
 
                             <div className="bg-[#12141f] p-6 rounded-xl border border-slate-800/80 mb-8">
-                                <h3 className="text-lg font-bold mb-4 text-indigo-400">Add New Runner</h3>
-                                <div className="flex flex-col sm:flex-row gap-3">
-                                    <input
-                                        className="bg-slate-900/50 border border-slate-700 p-3 rounded-lg text-white text-sm flex-1 focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 focus:outline-none transition-all"
-                                        placeholder="Full Name (e.g. John Doe)"
-                                        value={runnerName} onChange={e => setRunnerName(e.target.value)}
-                                    />
-                                    <input
-                                        className="bg-slate-900/50 border border-slate-700 p-3 rounded-lg text-white text-sm w-full sm:w-48 focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 focus:outline-none transition-all"
-                                        placeholder="Phone Number"
-                                        value={runnerPhone} onChange={e => setRunnerPhone(e.target.value)}
-                                    />
-                                    <button onClick={addRunner} className="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-3 rounded-lg font-bold shadow-lg shadow-indigo-900/20 transition-all active:scale-95 whitespace-nowrap">
-                                        + Add Runner
-                                    </button>
+                                <h3 id="runner-form" className="text-lg font-bold mb-4 text-indigo-400">{editingRunnerOldName ? 'Edit Runner' : 'Add New Runner'}</h3>
+                                <div className="flex gap-2 items-center mb-4">
+                                    <span className="text-xs text-slate-500 font-bold uppercase mr-2">Theme</span>
+                                    {colors.map(c => (
+                                        <button
+                                            key={c}
+                                            onClick={() => setRunnerColor(c)}
+                                            className={`w-6 h-6 rounded-full transition-all border-2 ${runnerColor === c ? 'border-white scale-110' : 'border-transparent opacity-30 hover:opacity-100 hover:scale-110'}`}
+                                            style={{ backgroundColor: c }}
+                                            title={c}
+                                        />
+                                    ))}
+                                </div>
+                                <div className="flex flex-col gap-4">
+                                    {/* Row 1: Contact Info */}
+                                    <div className="flex flex-col lg:flex-row gap-3">
+                                        <input
+                                            className="bg-slate-900/50 border border-slate-700 p-3 rounded-lg text-white text-sm flex-[2] min-w-[200px] focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 focus:outline-none transition-all"
+                                            placeholder="Full Name (e.g. John Doe)"
+                                            value={runnerName} onChange={e => setRunnerName(e.target.value)}
+                                        />
+                                        <input
+                                            className="bg-slate-900/50 border border-slate-700 p-3 rounded-lg text-white text-sm flex-1 min-w-[150px] focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 focus:outline-none transition-all"
+                                            placeholder="Phone Number"
+                                            value={runnerPhone} onChange={e => setRunnerPhone(e.target.value)}
+                                        />
+                                        {/* Segmented Toggle for Contact Type */}
+                                        <div className="flex bg-slate-900/50 border border-slate-700 rounded-lg p-1 shrink-0 h-[46px] w-[140px]">
+                                            <button
+                                                onClick={() => setRunnerContactType('cell')}
+                                                className={`flex-1 rounded-md text-xs font-bold transition-all ${runnerContactType === 'cell' ? 'bg-indigo-500 text-white shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}
+                                            >Cell</button>
+                                            <button
+                                                onClick={() => setRunnerContactType('whatsapp')}
+                                                className={`flex-1 rounded-md text-xs font-bold transition-all ${runnerContactType === 'whatsapp' ? 'bg-emerald-500 text-white shadow-sm' : 'text-gray-500 hover:text-gray-300'}`}
+                                            >WA</button>
+                                        </div>
+                                    </div>
+
+                                    {/* Row 2: Details & Actions */}
+                                    <div className="flex flex-col lg:flex-row gap-3 items-stretch lg:items-center">
+                                        <input
+                                            className="bg-slate-900/50 border border-slate-700 p-3 rounded-lg text-white text-sm flex-1 min-w-[200px] focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 focus:outline-none transition-all"
+                                            placeholder="City"
+                                            value={runnerCity} onChange={e => setRunnerCity(e.target.value)}
+                                        />
+                                        <div className="flex items-center gap-1 bg-slate-900/50 border border-slate-700 rounded-lg px-3 h-[46px] w-[120px] shrink-0">
+                                            <span className="text-emerald-400 font-bold">$</span>
+                                            <input
+                                                type="number"
+                                                className="bg-transparent w-full text-white text-sm focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none placeholder-slate-600"
+                                                placeholder="0"
+                                                value={runnerCash} onChange={e => setRunnerCash(e.target.value)}
+                                            />
+                                        </div>
+                                        <div className="flex gap-2 lg:ml-auto">
+                                            {editingRunnerOldName && (
+                                                <button onClick={cancelEditing} className="bg-slate-700 hover:bg-slate-600 text-white px-4 py-3 rounded-lg font-bold transition-all h-[46px] w-full lg:w-auto">
+                                                    Cancel
+                                                </button>
+                                            )}
+                                            <button onClick={addRunner} className={`${editingRunnerOldName ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-900/20' : 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-900/20'} text-white px-6 py-3 rounded-lg font-bold shadow-lg transition-all active:scale-95 whitespace-nowrap h-[46px] w-full lg:w-auto`}>
+                                                {editingRunnerOldName ? 'Save' : '+ Add'}
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
@@ -325,23 +591,56 @@ function SettingsContent() {
                                 </div>
                                 <div className="divide-y divide-slate-800/50">
                                     {runners.map((r, i) => (
-                                        <div key={i} className="flex justify-between items-center p-4 hover:bg-slate-800/30 transition-colors group">
+                                        <div key={i} className={`flex justify-between items-center p-4 transition-colors ${!r.active ? 'opacity-50 grayscale hover:grayscale-0' : 'hover:bg-slate-800/30'}`}>
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center text-sm font-bold text-indigo-400 border border-indigo-500/30">
+                                                <div
+                                                    className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold border transition-colors ${!r.active ? 'bg-slate-700/20 text-slate-500 border-slate-700' : ''}`}
+                                                    style={r.active ? {
+                                                        backgroundColor: (r.color || '#6366f1') + '33',
+                                                        borderColor: (r.color || '#6366f1') + '4d',
+                                                        color: r.color || '#6366f1'
+                                                    } : undefined}
+                                                >
                                                     {r.name.substring(0, 2).toUpperCase()}
                                                 </div>
                                                 <div>
-                                                    <p className="text-white font-medium">{r.name}</p>
-                                                    <p className="text-gray-500 text-xs mt-0.5">{r.phone}</p>
+                                                    <p className="text-white font-medium flex items-center gap-2">
+                                                        {r.name}
+                                                        {r.city && <span className="text-[10px] bg-slate-800 text-slate-400 px-1.5 py-0.5 rounded border border-slate-700">{r.city}</span>}
+                                                        <span className="text-[10px] bg-emerald-500/20 text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-500/30">${r.cash ?? 0}</span>
+                                                    </p>
+                                                    <p className={`text-xs mt-0.5 font-bold ${r.contactType === 'whatsapp' ? 'text-green-400' : 'text-blue-400'}`}>
+                                                        {r.phone}
+                                                    </p>
                                                 </div>
                                             </div>
-                                            <button
-                                                onClick={() => deleteRunner(r.name)}
-                                                className="text-slate-500 hover:text-red-400 p-2 rounded-lg hover:bg-red-500/10 transition-all opacity-0 group-hover:opacity-100 flex items-center gap-2 text-sm"
-                                            >
-                                                <span>Delete</span>
-                                                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                                            </button>
+
+                                            <div className="flex items-center gap-4">
+                                                {/* Active Toggle */}
+                                                <label className="flex items-center gap-2 cursor-pointer">
+                                                    <span className="text-xs text-slate-500 uppercase font-bold">{r.active ? 'Active' : 'Inactive'}</span>
+                                                    <div className="relative inline-flex items-center cursor-pointer">
+                                                        <input type="checkbox" className="sr-only peer" checked={r.active} onChange={() => toggleRunner(r.name, !r.active)} />
+                                                        <div className="w-9 h-5 bg-slate-700 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-500"></div>
+                                                    </div>
+                                                </label>
+
+                                                <button
+                                                    onClick={() => startEditing(r)}
+                                                    className="text-slate-500 hover:text-indigo-400 p-2 rounded-lg hover:bg-indigo-500/10 transition-all ml-1"
+                                                    title="Edit Runner"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                                                </button>
+
+                                                <button
+                                                    onClick={() => deleteRunner(r.name)}
+                                                    className="text-slate-500 hover:text-red-400 p-2 rounded-lg hover:bg-red-500/10 transition-all ml-1"
+                                                    title="Delete Runner"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                                </button>
+                                            </div>
                                         </div>
                                     ))}
                                     {runners.length === 0 && (
@@ -458,6 +757,44 @@ function SettingsContent() {
                                     {uploadStatus}
                                 </p>}
                             </div>
+
+                            {/* Existing Schedule Display */}
+                            {schedule.length > 0 && (
+                                <div className="mt-8 bg-[#12141f] rounded-xl border border-slate-800/80 overflow-hidden">
+                                    <div className="p-4 bg-slate-900/50 border-b border-slate-800 flex justify-between items-center">
+                                        <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider">Uploaded Schedule</h3>
+                                        <div className="flex items-center gap-3">
+                                            <button
+                                                onClick={clearSchedule}
+                                                className="text-xs font-bold text-red-400 hover:text-red-300 hover:bg-red-500/10 px-3 py-1.5 rounded-lg border border-red-500/20 transition-all"
+                                            >
+                                                Clear Dates
+                                            </button>
+                                            <span className="text-xs text-slate-500 bg-slate-800 px-2 py-1.5 rounded border border-slate-700 font-mono">{schedule.length} Dates</span>
+                                        </div>
+                                    </div>
+                                    <div className="max-h-[400px] overflow-y-auto">
+                                        <table className="w-full text-sm">
+                                            <thead className="bg-slate-900/80 sticky top-0">
+                                                <tr>
+                                                    <th className="text-left p-3 text-slate-400 font-medium">Date</th>
+                                                    <th className="text-left p-3 text-slate-400 font-medium">City</th>
+                                                    <th className="text-left p-3 text-slate-400 font-medium">Venue</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-800/50">
+                                                {schedule.map((row, i) => (
+                                                    <tr key={i} className="hover:bg-slate-800/30 transition-colors">
+                                                        <td className="p-3 text-white font-mono text-xs">{row.date}</td>
+                                                        <td className="p-3 text-slate-300">{row.city}</td>
+                                                        <td className="p-3 text-slate-400">{row.venue}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
 
@@ -528,7 +865,18 @@ function SettingsContent() {
                                             className="bg-slate-900 border border-slate-700 p-3 rounded-lg text-white text-sm flex-1 focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500 outline-none transition-all placeholder-slate-600"
                                             placeholder="e.g. 1xFz3FESsw84SpaQtRcZPIxu9Or1kNlYI0g1wEtAVr9U"
                                             value={sheetId}
-                                            onChange={(e) => setSheetId(e.target.value)}
+                                            onChange={(e) => {
+                                                let val = e.target.value;
+                                                // Auto-extract from Magic Link
+                                                if (val.includes('setup_sheet_id=')) {
+                                                    val = val.split('setup_sheet_id=')[1].split('&')[0];
+                                                }
+                                                // Auto-extract from Google Sheet URL
+                                                else if (val.includes('/d/')) {
+                                                    val = val.split('/d/')[1].split('/')[0];
+                                                }
+                                                setSheetId(val);
+                                            }}
                                         />
                                         <button
                                             onClick={handleSaveSheetId}
@@ -564,6 +912,36 @@ function SettingsContent() {
                                         </div>
                                     </div>
                                 )}
+
+                                {/* Demo Data Section */}
+                                {sheetId && (
+                                    <div className="bg-[#12141f] p-6 rounded-xl border border-dashed border-indigo-500/30 mt-8">
+                                        <div className="flex items-center gap-3 mb-2">
+                                            <h3 className="text-lg font-bold text-white">Populate Demo Data</h3>
+                                            <span className="text-xs bg-indigo-500/20 text-indigo-300 px-2 py-0.5 rounded border border-indigo-500/30">Testing</span>
+                                        </div>
+                                        <p className="text-gray-400 text-sm mb-4">
+                                            Add 50 mock requests and a team of runners to your sheet. Useful for seeing the dashboard in action.
+                                        </p>
+                                        <button
+                                            onClick={loadDemoData}
+                                            disabled={isLoading}
+                                            className="bg-slate-800 hover:bg-slate-700 text-white px-5 py-2.5 rounded-lg font-bold border border-slate-700 transition-all flex items-center gap-2 group hover:border-indigo-500/50"
+                                        >
+                                            {isLoading ? (
+                                                <>
+                                                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                                                    Generating Data...
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <span className="text-lg group-hover:scale-110 transition-transform">🎲</span>
+                                                    Load Demo Data
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     )}
@@ -572,95 +950,149 @@ function SettingsContent() {
                     {activeSettingTab === 'Help' && (
                         <div className="animate-in fade-in slide-in-from-bottom-4 duration-300">
                             <h2 className="text-3xl font-bold mb-6 text-white border-b border-slate-800 pb-4">Help & Instructions</h2>
-                            <p className="text-gray-400 mb-8 max-w-2xl">
-                                Detailed guide on how to configure and use the Runner List Application.
+
+                            {/* Interactive Tour Banner */}
+                            <div className="bg-gradient-to-r from-indigo-900/50 to-purple-900/50 p-8 rounded-xl border border-indigo-500/30 flex flex-col md:flex-row justify-between items-center gap-6 mb-10 shadow-lg">
+                                <div>
+                                    <h3 className="text-2xl font-bold text-white mb-2 flex items-center gap-2">
+                                        <span className="text-3xl">🚀</span>
+                                        New to the Dashboard?
+                                    </h3>
+                                    <p className="text-indigo-200 text-lg">Take a quick interactive tour to learn the ropes of your new mission control center.</p>
+                                </div>
+                                <button
+                                    onClick={() => window.location.href = '/dashboard?tour=true'}
+                                    className="bg-white hover:bg-indigo-50 text-indigo-700 px-8 py-4 rounded-xl font-bold shadow-xl shadow-indigo-900/20 transition-all active:scale-95 flex items-center gap-3 whitespace-nowrap group"
+                                >
+                                    <span className="text-xl group-hover:animate-bounce">👉</span>
+                                    Start App Tour
+                                </button>
+                            </div>
+
+                            <p className="text-gray-400 mb-8 max-w-2xl border-l-4 border-slate-700 pl-4">
+                                This dashboard connects your requests, runners, and tour schedule into one seamless logistics hub. Here is how it works:
                             </p>
 
                             <div className="space-y-8">
-                                {/* Section 1: Google Sheet Structure */}
+                                {/* Section 1: Workflow */}
                                 <section>
-                                    <h3 className="text-xl font-bold text-indigo-400 mb-4 flex items-center gap-2">
-                                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                                        1. Google Sheet Structure
+                                    <h3 className="text-xl font-bold text-emerald-400 mb-4 flex items-center gap-2">
+                                        <span className="bg-emerald-500/10 text-emerald-500 p-1 rounded-lg">
+                                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
+                                        </span>
+                                        1. The Runner Workflow
                                     </h3>
-                                    <div className="bg-[#12141f] p-6 rounded-xl border border-slate-800/80 text-gray-300 leading-relaxed">
-                                        <p className="mb-4">The application relies on a Google Sheet with two specific tabs (Worksheets):</p>
-                                        <ul className="list-disc pl-5 space-y-2 mb-4">
-                                            <li>
-                                                <strong className="text-white">Sheet 1 (Requests):</strong> This is the main sheet where all runner requests are stored. It must have the following columns specific headers:
-                                                <div className="bg-slate-900 p-3 rounded mt-2 font-mono text-xs text-emerald-400 border border-slate-700">
-                                                    id, name, item, status, runner, mobile, timestamp, dept, store, cost, image_url, Show Date, City, Venue, Email
-                                                </div>
-                                            </li>
-                                            <li>
-                                                <strong className="text-white">Sheet 2 (Schedule):</strong> Used to look up the City/Venue for the current date. Should contain:
-                                                <div className="bg-slate-900 p-3 rounded mt-2 font-mono text-xs text-emerald-400 border border-slate-700">
-                                                    Date, City, Venue
-                                                </div>
-                                            </li>
-                                        </ul>
-                                        <p className="text-sm text-gray-500 italic">
-                                            * Note: The "App Setup" tab provides a template with these columns pre-configured.
-                                        </p>
+                                    <div className="bg-[#12141f] p-6 rounded-xl border border-slate-800/80 text-gray-300 leading-relaxed grid gap-6 md:grid-cols-3">
+                                        <div className="relative">
+                                            <div className="absolute -left-3 top-0 bottom-0 w-1 bg-emerald-500/20 rounded-full"></div>
+                                            <h4 className="text-white font-bold mb-2">1. Assign & Prepare</h4>
+                                            <p className="text-sm">Incoming requests appear in the feed. Assign them to a runner. The runner moves to the <span className="text-amber-400 font-bold">Send List</span> (Amber) group.</p>
+                                        </div>
+                                        <div className="relative">
+                                            <div className="absolute -left-3 top-0 bottom-0 w-1 bg-amber-500/20 rounded-full"></div>
+                                            <h4 className="text-white font-bold mb-2">2. Share & Send</h4>
+                                            <p className="text-sm">Click "Share List" on the runner's card. Send via PDF or WhatsApp. The runner automatically moves to <span className="text-rose-400 font-bold">Out Running</span> (Red) status after a brief delay.</p>
+                                        </div>
+                                        <div className="relative">
+                                            <div className="absolute -left-3 top-0 bottom-0 w-1 bg-rose-500/20 rounded-full"></div>
+                                            <h4 className="text-white font-bold mb-2">3. Track & Complete</h4>
+                                            <p className="text-sm">Monitor their progress. When items are bought, mark them "Purchased". Completed items move to the history tab.</p>
+                                        </div>
                                     </div>
                                 </section>
 
                                 {/* Section 2: Hosting & Service Account */}
                                 <section>
                                     <h3 className="text-xl font-bold text-purple-400 mb-4 flex items-center gap-2">
-                                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 01-2 2v4a2 2 0 012 2h14a2 2 0 012-2v-4a2 2 0 01-2-2m-2-4h.01M17 16h.01" /></svg>
-                                        2. Hosting & Service Account
+                                        <span className="bg-purple-500/10 text-purple-500 p-1 rounded-lg">
+                                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 01-2 2v4a2 2 0 012 2h14a2 2 0 012-2v-4a2 2 0 01-2-2m-2-4h.01M17 16h.01" /></svg>
+                                        </span>
+                                        2. Connection Status
                                     </h3>
                                     <div className="bg-[#12141f] p-6 rounded-xl border border-slate-800/80 text-gray-300 leading-relaxed">
                                         <p className="mb-4">
-                                            This app uses a <strong>Google Service Account</strong> to securely talk to your sheets without making every user log in.
+                                            The app communicates securely with your Google Sheet using a Service Account.
                                         </p>
-                                        <ol className="list-decimal pl-5 space-y-3">
-                                            <li>
-                                                <strong>Invite the Bot:</strong> In your Google Sheet, click the big "Share" button and invite the Service Account Email (found in "App Setup") as an <span className="text-indigo-400 font-bold">Editor</span>.
-                                            </li>
-                                            <li>
-                                                <strong>Permissions:</strong> If you see "Access Denied" errors, verify that you haven't just shared the link, but have explicitly added the email address to the sharing list.
-                                            </li>
-                                        </ol>
-                                    </div>
-                                </section>
-
-                                {/* Section 3: Using the Dashboard */}
-                                <section>
-                                    <h3 className="text-xl font-bold text-emerald-400 mb-4 flex items-center gap-2">
-                                        <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
-                                        3. Daily Workflow
-                                    </h3>
-                                    <div className="bg-[#12141f] p-6 rounded-xl border border-slate-800/80 text-gray-300 leading-relaxed">
-                                        <ul className="space-y-4">
-                                            <li className="flex gap-3">
-                                                <span className="bg-indigo-900/50 text-indigo-300 font-bold px-2 py-1 rounded text-xs h-fit self-start">COORDINATOR</span>
-                                                <span>
-                                                    Use the Dashboard to see incoming requests. Assign a <strong>Runner</strong> to each item. The item will move to the "Assigned" tab.
-                                                </span>
-                                            </li>
-                                            <li className="flex gap-3">
-                                                <span className="bg-purple-900/50 text-purple-300 font-bold px-2 py-1 rounded text-xs h-fit self-start">RUNNER</span>
-                                                <span>
-                                                    Open your specific view (e.g., <code>/runner/Steven</code>). You will see only your assigned items. Click "Mark Bought" and enter the cost to complete an item.
-                                                </span>
-                                            </li>
-                                            <li className="flex gap-3">
-                                                <span className="bg-emerald-900/50 text-emerald-300 font-bold px-2 py-1 rounded text-xs h-fit self-start">COMPLETE</span>
-                                                <span>
-                                                    Once bought, items move to the "Completed" tab on the dashboard. The cost is recorded and the requestor is notified (if configured).
-                                                </span>
-                                            </li>
+                                        <ul className="list-disc pl-5 space-y-2 text-sm">
+                                            <li>If data isn't loading, check the "App Setup" tab to verify your Sheet ID.</li>
+                                            <li>Ensure <code>{serviceEmail}</code> is added as an <strong>Editor</strong> on your sheet.</li>
+                                            <li>Tour Dates are stored locally on your device for privacy and speed. Use the "Tour Schedule" tab to update or clear them.</li>
                                         </ul>
                                     </div>
                                 </section>
+
+                                {/* Section 3: Pro Tips */}
+                                <section>
+                                    <h3 className="text-xl font-bold text-amber-400 mb-4 flex items-center gap-2">
+                                        <span className="bg-amber-500/10 text-amber-500 p-1 rounded-lg">
+                                            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                                        </span>
+                                        3. Pro Tips
+                                    </h3>
+                                    <ul className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <li className="bg-[#12141f] p-4 rounded-lg border border-slate-800/80 flex gap-3 items-start">
+                                            <span className="text-lg">💰</span>
+                                            <div>
+                                                <strong className="text-white block mb-1">Cash Tracking</strong>
+                                                <span className="text-sm text-gray-400">Click the green cash button on any runner to add funds or view their float history.</span>
+                                            </div>
+                                        </li>
+                                        <li className="bg-[#12141f] p-4 rounded-lg border border-slate-800/80 flex gap-3 items-start">
+                                            <span className="text-lg">🔄</span>
+                                            <div>
+                                                <strong className="text-white block mb-1">Auto-Refresh</strong>
+                                                <span className="text-sm text-gray-400">The dashboard updates automatically every 30 seconds or whenever you switch back to the tab.</span>
+                                            </div>
+                                        </li>
+                                        <li className="bg-[#12141f] p-4 rounded-lg border border-slate-800/80 flex gap-3 items-start">
+                                            <span className="text-lg">📅</span>
+                                            <div>
+                                                <strong className="text-white block mb-1">Smart PDF</strong>
+                                                <span className="text-sm text-gray-400">PDFs automatically use today's venue info if a tour schedule is uploaded.</span>
+                                            </div>
+                                        </li>
+                                        <li className="bg-[#12141f] p-4 rounded-lg border border-slate-800/80 flex gap-3 items-start">
+                                            <span className="text-lg">🗑️</span>
+                                            <div>
+                                                <strong className="text-white block mb-1">Clearing Data</strong>
+                                                <span className="text-sm text-gray-400">You can wipe the Schedule in Settings if you need to start a new leg.</span>
+                                            </div>
+                                        </li>
+                                    </ul>
+                                </section>
+                            </div>
+
+                            {/* DANGER ZONE */}
+                            <div className="mt-12 pt-8 border-t border-red-900/30">
+                                <div className="bg-red-500/5 border border-red-500/20 rounded-xl p-6">
+                                    <h3 className="text-xl font-bold text-red-500 mb-2 flex items-center gap-2">
+                                        <span className="material-symbols-outlined">warning</span>
+                                        Danger Zone
+                                    </h3>
+                                    <p className="text-red-200/60 mb-6 text-sm">
+                                        These actions are irreversible. Please proceed with caution.
+                                    </p>
+
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <strong className="text-white block">Hard Reset</strong>
+                                            <span className="text-xs text-slate-500">Clears all requests, runners, and departments. Starts fresh.</span>
+                                        </div>
+                                        <button
+                                            onClick={handleHardReset}
+                                            disabled={isLoading}
+                                            className="bg-red-500/10 hover:bg-red-500 hover:text-white text-red-500 px-4 py-2 rounded-lg font-bold border border-red-500/50 transition-all text-sm flex items-center gap-2"
+                                        >
+                                            {isLoading ? 'Resetting...' : 'Reset Everything'}
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     )}
 
                 </div>
-            </main>
+            </main >
 
             <Modal
                 isOpen={modal.isOpen}
@@ -671,7 +1103,7 @@ function SettingsContent() {
             >
                 {modal.message}
             </Modal>
-        </div>
+        </div >
     );
 }
 

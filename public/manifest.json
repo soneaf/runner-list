@@ -1,0 +1,16 @@
+{
+    "name": "Tour Logistics - Runner List",
+    "short_name": "Runner List",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#0b0c15",
+    "theme_color": "#0b0c15",
+    "orientation": "portrait-primary",
+    "icons": [
+        {
+            "src": "/globe.svg",
+            "sizes": "any",
+            "type": "image/svg+xml"
+        }
+    ]
+}
